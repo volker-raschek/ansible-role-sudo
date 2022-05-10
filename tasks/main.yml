@@ -1,0 +1,31 @@
+---
+
+- name: Load variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install sudo
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ sudo_users_package_names }}"
+
+- name: Flush drop-in files of sudoers.d
+  file:
+    state: "{{ item }}"
+    path: "/etc/sudoers.d"
+    owner: root
+    group: root
+    mode: 0750
+  with_items:
+  - absent
+  - directory
+
+- name: Create drop-in files of sudoers.d
+  community.general.sudoers:
+    name: "{{ item.key }}"
+    state: present
+    user: "{{ item.key }}"
+    nopassword: "{{ item.value.without_password | default(False) }}"
+    commands: "{{ items.value.command | join(',') if items.value.command is defined and items.value.command | length > 0 else 'ALL' }}"
+  when: "item.value | length > 0"
+  with_dict: "{{ sudo_users }}"

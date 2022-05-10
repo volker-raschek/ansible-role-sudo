@@ -1,0 +1,11 @@
+---
+
+sudo_users_sudoers: {}
+  # myuser:
+  #   commands:
+  #   - /usr/sbin/nologin
+  #   without_password: yes
+  # myadmin:
+  #   commands:
+  #   - ALL
+  #   without_password: yes

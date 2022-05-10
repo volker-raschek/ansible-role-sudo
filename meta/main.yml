@@ -1,0 +1,23 @@
+galaxy_info:
+  role_name: sudo_users
+  author: Markus Pesch
+  description: Role to configure sudoers on different distributions
+  company: Cryptic Systems
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+  - name: ArchLinux
+    versions:
+    - all
+  - name: Ubuntu
+    versions:
+    - all
+  - name: Fedora
+    versions:
+    - "35"
+
+  galaxy_tags:
+  - sudo
+  - sudoers
+
+dependencies: []

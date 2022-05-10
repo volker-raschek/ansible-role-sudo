@@ -1,0 +1,4 @@
+---
+
+sudo_users_package_names:
+- sudo
