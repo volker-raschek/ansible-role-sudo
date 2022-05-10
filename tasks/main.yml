@@ -9,6 +9,17 @@
     state: present
   with_items: "{{ sudo_users_package_names }}"
 
+- name: Enable includedir directive
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: "^(#)+(\\s)*includedir(\\s)*/etc/sudoers.d"
+    line: "#includedir /etc/sudoers.d"
+    validate: 'visudo --check --file %s'
+    mode: 0440
+    owner: root
+    group: root
+
 - name: Flush drop-in files of sudoers.d
   file:
     state: "{{ item }}"
