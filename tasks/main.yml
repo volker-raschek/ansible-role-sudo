@@ -28,4 +28,4 @@
     nopassword: "{{ item.value.without_password | default(False) }}"
     commands: "{{ items.value.command | join(',') if items.value.command is defined and items.value.command | length > 0 else 'ALL' }}"
   when: "item.value | length > 0"
-  with_dict: "{{ sudo_users }}"
+  with_dict: "{{ sudo_users_sudoers }}"
