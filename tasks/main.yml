@@ -3,6 +3,16 @@
 - name: Load variables
   include_vars: "{{ ansible_os_family }}.yml"
 
+- name: Verify variables
+  tags: [ testa ]
+  include_tasks: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+      - "{{ ansible_distribution }}_verify_vars.yml"
+      - "{{ ansible_os_family }}_verify_vars.yml"
+      - "verify_vars.yml"
+
 - name: Install sudo
   package:
     name: "{{ item }}"
@@ -31,12 +41,60 @@
   - absent
   - directory
 
-- name: Create drop-in files of sudoers.d
+- name: "Create sudoers drop-in file to execute commands for specific unix users"
+  tags: [ "testa" ]
   community.general.sudoers:
-    name: "{{ item.key }}"
+    name: "{{ item.filename | default(item.user) }}"
     state: present
-    user: "{{ item.key }}"
-    nopassword: "{{ item.value.without_password | default(False) }}"
-    commands: "{{ items.value.command | join(',') if items.value.command is defined and items.value.command | length > 0 else 'ALL' }}"
-  when: "item.value | length > 0"
-  with_dict: "{{ sudo_users_sudoers }}"
+    user: "{{ item.user }}"
+    nopassword: "{{ item.nopassword | default(false) }}"
+    commands: "{{ item.commands | default('ALL') }}"
+  with_items:
+  - "{{ sudo_users_sudoers }}"
+  when: item.user is defined and item.user | length > 0 and
+        item.group is not defined and
+        item.runas is not defined
+
+- name: "Create sudoers drop-in file to execute commands for specific unix users as specific unix user"
+  tags: [ "testa" ]
+  community.general.sudoers:
+    name: "{{ item.filename | default(item.user) }}"
+    state: present
+    user: "{{ item.user }}"
+    runas: "{{ item.runas }}"
+    nopassword: "{{ item.nopassword | default(false) }}"
+    commands: "{{ item.commands | default('ALL') }}"
+  with_items:
+  - "{{ sudo_users_sudoers }}"
+  when: item.user is defined and item.user | length > 0 and
+        item.group is not defined and
+        item.runas is defined and item.runas | length > 0
+
+- name: "Create sudoers drop-in file to execute commands for specific unix groups"
+  tags: [ "testa" ]
+  community.general.sudoers:
+    name: "{{ item.filename | default(item.group) }}"
+    state: present
+    group: "{{ item.group }}"
+    nopassword: "{{ item.nopassword | default(false) }}"
+    commands: "{{ item.commands | default('ALL') }}"
+  with_items:
+  - "{{ sudo_users_sudoers }}"
+  when: item.user is not defined and
+        item.group is defined and item.group | length > 0 and
+        item.runas is not defined
+
+- name: "Create sudoers drop-in file to execute commands for specific unix groups as specifix unix user"
+  tags: [ "testa" ]
+  community.general.sudoers:
+    name: "{{ item.filename | default(item.group) }}"
+    state: present
+    group: "{{ item.group }}"
+    runas: "{{ item.runas }}"
+    nopassword: "{{ item.nopassword | default(false) }}"
+    commands: "{{ item.commands | default('ALL') }}"
+  with_items:
+  - "{{ sudo_users_sudoers }}"
+  when: item.user is not defined and
+        item.group is defined and item.group | length > 0 and
+        item.runas is defined and item.runas | length > 0

@@ -1,11 +1,10 @@
 ---
 
 sudo_users_sudoers: {}
-  # myuser:
-  #   commands:
-  #   - /usr/sbin/nologin
-  #   without_password: yes
-  # myadmin:
-  #   commands:
-  #   - ALL
-  #   without_password: yes
+# - commands:
+#   - ALL
+#   filename: "" # Optional: Default to user or group
+#   group: "" # Group or User, not booth!
+#   nopassword: true
+#   runas: "" # Optional
+#   user: "markus": # Group or User, not booth!
