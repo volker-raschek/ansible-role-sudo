@@ -42,7 +42,6 @@
   - directory
 
 - name: "Create sudoers drop-in file to execute commands for specific unix users"
-  tags: [ "testa" ]
   community.general.sudoers:
     name: "{{ item.filename | default(item.user) }}"
     state: present
@@ -56,7 +55,6 @@
         item.runas is not defined
 
 - name: "Create sudoers drop-in file to execute commands for specific unix users as specific unix user"
-  tags: [ "testa" ]
   community.general.sudoers:
     name: "{{ item.filename | default(item.user) }}"
     state: present
@@ -71,7 +69,6 @@
         item.runas is defined and item.runas | length > 0
 
 - name: "Create sudoers drop-in file to execute commands for specific unix groups"
-  tags: [ "testa" ]
   community.general.sudoers:
     name: "{{ item.filename | default(item.group) }}"
     state: present
@@ -85,7 +82,6 @@
         item.runas is not defined
 
 - name: "Create sudoers drop-in file to execute commands for specific unix groups as specifix unix user"
-  tags: [ "testa" ]
   community.general.sudoers:
     name: "{{ item.filename | default(item.group) }}"
     state: present
