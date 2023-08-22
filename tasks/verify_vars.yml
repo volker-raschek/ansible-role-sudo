@@ -1,7 +1,6 @@
 ---
 
 - name: Verify if not user and group exists for each entry
-  tags: [ testa ]
   ansible.builtin.assert:
     that:
       - (item.user is defined and item.group is not defined) or
