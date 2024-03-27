@@ -1,6 +1,6 @@
 galaxy_info:
-  role_name: sudo_users
-  author: Markus Pesch
+  role_name: "sudo"
+  author: "Markus Pesch"
   description: Role to configure sudoers on different distributions
   company: Cryptic Systems
   license: MIT
