@@ -1,10 +1,10 @@
 ---
 
 - name: Load variables
-  include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
 
 - name: Verify variables
-  include_tasks: "{{ lookup('first_found', params) }}"
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
   vars:
     params:
       files:
@@ -13,29 +13,29 @@
       - "verify_vars.yml"
 
 - name: Install sudo
-  package:
+  ansible.builtin.package:
     name: "{{ item }}"
     state: present
   with_items: "{{ sudo_users_package_names }}"
 
 - name: Enable includedir directive
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/sudoers
     state: present
     regexp: "^(#)+(\\s)*includedir(\\s)*/etc/sudoers.d"
     line: "#includedir /etc/sudoers.d"
     validate: 'visudo --check --file %s'
-    mode: 0440
-    owner: root
-    group: root
+    mode: "0440"
+    owner: "root"
+    group: "root"
 
 - name: Flush drop-in files of sudoers.d
-  file:
+  ansible.builtin.file:
     state: "{{ item }}"
     path: "/etc/sudoers.d"
-    owner: root
-    group: root
-    mode: 0750
+    owner: "root"
+    group: "root"
+    mode: "0750"
   with_items:
   - absent
   - directory

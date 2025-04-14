@@ -3,7 +3,7 @@
 - name: Verify if not user and group exists for each entry
   ansible.builtin.assert:
     that:
-      - (item.user is defined and item.group is not defined) or
-        (item.user is not defined and item.group is defined)
+    - (item.user is defined and item.group is not defined) or
+      (item.user is not defined and item.group is defined)
   with_items:
   - "{{ sudo_users_sudoers }}"
