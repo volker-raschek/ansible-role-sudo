@@ -5,5 +5,4 @@
     that:
     - (item.user is defined and item.group is not defined) or
       (item.user is not defined and item.group is defined)
-  with_items:
-  - "{{ sudo_users_sudoers }}"
+  with_items: "{{ sudo_users_sudoers }}"
