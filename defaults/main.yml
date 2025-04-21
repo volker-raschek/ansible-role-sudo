@@ -1,6 +1,6 @@
 ---
 
-sudo_users_sudoers: {}
+sudo_users_sudoers: []
 # - commands:
 #   - ALL
 #   filename: "" # Optional: Default to user or group
