@@ -1,5 +1,4 @@
 galaxy_info:
-  namespace: volker_raschek
   role_name: "sudo"
   author: "Markus Pesch"
   description: Role to configure sudoers on different distributions
