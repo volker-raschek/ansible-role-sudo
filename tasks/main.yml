@@ -1,15 +1,15 @@
 ---
 
 - name: Load variables
-  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
 
 - name: Verify variables
   ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
   vars:
     params:
       files:
-      - "{{ ansible_distribution }}_verify_vars.yml"
-      - "{{ ansible_os_family }}_verify_vars.yml"
+      - "{{ ansible_facts['distribution'] }}_verify_vars.yml"
+      - "{{ ansible_facts['os_family' }}_verify_vars.yml"
       - "verify_vars.yml"
 
 - name: Install sudo
