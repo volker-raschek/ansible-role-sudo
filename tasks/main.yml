@@ -9,7 +9,7 @@
     params:
       files:
       - "{{ ansible_facts['distribution'] }}_verify_vars.yaml"
-      - "{{ ansible_facts['os_family' }}_verify_vars.yaml"
+      - "{{ ansible_facts['os_family'] }}_verify_vars.yaml"
       - "verify_vars.yaml"
 
 - name: Install sudo
