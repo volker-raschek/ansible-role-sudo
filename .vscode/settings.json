@@ -3,12 +3,12 @@
   "files.associations": {
     "**/.gitea/**/*.yml": "yaml",
     "**/.gitea/**/*.yaml": "yaml",
-    ".drone.yml": "yaml",
     "docker-compose*.yml": "dockercompose",
     "*.yml": "ansible",
     "*.yaml": "ansible",
     ".yamllint": "yaml",
     ".yamllint.yml": "yaml",
     ".yamllint.yaml": "yaml"
-  }
+  },
+  "rewrap.wrappingColumn": 120
 }
