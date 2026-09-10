@@ -1,0 +1,17 @@
+---
+argument_specs:
+  main:
+    short_description: "Role to configure sudoers on different distributions"
+    description:
+    - "This Ansible role installs sudo and manages drop-in files in /etc/sudoers.d."
+    - "Each drop-in file grants a unix user or a unix group the permission to execute commands, optionally as another
+      unix user."
+    author: "Markus Pesch"
+    options:
+      sudo_users_sudoers:
+        description:
+        - "List of sudoers drop-in files. Each entry must define either 'user' or 'group', but not both."
+        - "Supported keys are 'commands', 'filename', 'group', 'nopassword', 'runas', 'state' and 'user'."
+        type: list
+        elements: dict
+        default: []
