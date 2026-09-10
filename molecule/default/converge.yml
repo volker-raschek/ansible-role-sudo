@@ -1,0 +1,33 @@
+---
+
+- name: Converge
+  hosts: all
+  vars:
+    sudo_users_sudoers:
+    # A user without runas, restricted to a single command.
+    - user: molecule-alice
+      commands:
+      - /usr/bin/systemctl restart nginx
+      nopassword: true
+    # A user that acts as another user and stores its rule under a custom filename.
+    - user: molecule-bob
+      runas: molecule-alice
+      filename: molecule-bob-as-alice
+      nopassword: true
+    # A group that has to authenticate itself.
+    - group: molecule-ops
+      commands:
+      - /usr/bin/id
+      nopassword: false
+    # A group that acts as root.
+    - group: molecule-admins
+      runas: root
+      filename: molecule-admins-as-root
+      nopassword: true
+    - user: molecule-obsolete
+      state: absent
+  tasks:
+  # The role is included by the name of its directory, which molecule put on the roles path.
+  - name: Include the role sudo
+    ansible.builtin.include_role:
+      name: sudo

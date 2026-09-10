@@ -1,0 +1,59 @@
+---
+
+- name: Prepare
+  hosts: all
+  gather_facts: false
+  vars:
+    # The base images ship neither a python interpreter for ansible nor the package manager bindings the role relies on.
+    _bootstrap: |
+      set -eu
+      if command -v pacman > /dev/null; then
+        pacman --sync --refresh --noconfirm python shadow
+      elif command -v apt-get > /dev/null; then
+        apt-get update
+        apt-get install --yes passwd python3 python3-apt
+      else
+        dnf install --assumeyes python3 python3-libdnf5 shadow-utils
+      fi
+  tasks:
+  # The raw command is wrapped explicitly, because the bootstrap relies on shell builtins.
+  - name: Bootstrap the python interpreter and the package manager bindings
+    ansible.builtin.raw: "/bin/sh -c {{ _bootstrap | quote }}"
+    changed_when: true
+
+- name: Seed the objects the converge refers to
+  hosts: all
+  tasks:
+  - name: Create the groups the converge grants permissions to
+    ansible.builtin.group:
+      name: "{{ item }}"
+      state: present
+    loop:
+    - molecule-admins
+    - molecule-ops
+
+  - name: Create the users the converge grants permissions to
+    ansible.builtin.user:
+      name: "{{ item }}"
+      group: users
+      state: present
+    loop:
+    - molecule-alice
+    - molecule-bob
+
+  # The removal path of the role can only be observed on a drop-in file that exists before the role runs.
+  - name: Create the drop-in directory the seeded file lives in
+    ansible.builtin.file:
+      path: /etc/sudoers.d
+      state: directory
+      owner: root
+      group: root
+      mode: "0750"
+
+  - name: Seed the drop-in file that the converge removes again
+    ansible.builtin.copy:
+      content: "molecule-alice ALL=NOPASSWD: /usr/bin/true\n"
+      dest: /etc/sudoers.d/molecule-obsolete
+      owner: root
+      group: root
+      mode: "0440"

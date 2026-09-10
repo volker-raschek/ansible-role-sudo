@@ -1,0 +1,85 @@
+---
+
+- name: Verify
+  hosts: all
+  vars:
+    # The exact spacing the sudoers module emits differs between releases, so only the tokens are matched.
+    _expected_rules:
+      molecule-alice: 'molecule-alice\s+ALL=\s*NOPASSWD:\s*/usr/bin/systemctl restart nginx'
+      molecule-bob-as-alice: 'molecule-bob\s+ALL=\(molecule-alice\)\s*NOPASSWD:\s*ALL'
+      molecule-ops: '%molecule-ops\s+ALL=\s*/usr/bin/id'
+      molecule-admins-as-root: '%molecule-admins\s+ALL=\(root\)\s*NOPASSWD:\s*ALL'
+  tasks:
+  - name: Stat the drop-in directory and the removed drop-in file
+    ansible.builtin.stat:
+      path: "{{ item }}"
+    register: _directory
+    loop:
+    - /etc/sudoers.d
+    - /etc/sudoers.d/molecule-obsolete
+
+  - name: Assert that the drop-in directory exists and that the obsolete drop-in file is gone
+    ansible.builtin.assert:
+      that:
+      - _directory.results[0].stat.isdir
+      - _directory.results[0].stat.mode == '0750'
+      - not _directory.results[1].stat.exists
+      fail_msg: "/etc/sudoers.d is not owned by the role or the file molecule-obsolete was not removed"
+
+  - name: Stat the drop-in files of the declared rules
+    ansible.builtin.stat:
+      path: "/etc/sudoers.d/{{ item.key }}"
+    register: _rule_files
+    loop: "{{ _expected_rules | dict2items }}"
+    loop_control:
+      label: "{{ item.key }}"
+
+  - name: Assert that every drop-in file exists and is only readable by root
+    ansible.builtin.assert:
+      that:
+      - item.stat.exists
+      - item.stat.mode == '0440'
+      - item.stat.pw_name == 'root'
+      - item.stat.gr_name == 'root'
+      fail_msg: >-
+        /etc/sudoers.d/{{ item.item.key }} has mode {{ item.stat.mode | default('none') }} and owner
+        {{ item.stat.pw_name | default('none') }}:{{ item.stat.gr_name | default('none') }} instead of 0440 and root:root
+    loop: "{{ _rule_files.results }}"
+    loop_control:
+      label: "{{ item.item.key }}"
+
+  - name: Read the drop-in files of the declared rules
+    ansible.builtin.slurp:
+      src: "/etc/sudoers.d/{{ item.key }}"
+    register: _rule_contents
+    loop: "{{ _expected_rules | dict2items }}"
+    loop_control:
+      label: "{{ item.key }}"
+
+  - name: Assert that every drop-in file holds the declared rule
+    ansible.builtin.assert:
+      that: item.content | b64decode is search(item.item.value)
+      fail_msg: >-
+        /etc/sudoers.d/{{ item.item.key }} contains
+        {{ item.content | b64decode | trim }} instead of a rule matching {{ item.item.value }}
+    loop: "{{ _rule_contents.results }}"
+    loop_control:
+      label: "{{ item.item.key }}"
+
+  - name: Read /etc/sudoers
+    ansible.builtin.slurp:
+      src: /etc/sudoers
+    register: _sudoers
+
+  - name: Assert that the drop-in directory is included exactly once
+    vars:
+      _includedir: "{{ (_sudoers.content | b64decode).splitlines() | select('search', 'includedir\\s+/etc/sudoers.d') }}"
+    ansible.builtin.assert:
+      that: _includedir == ['#includedir /etc/sudoers.d']
+      fail_msg: "/etc/sudoers includes the drop-in directory as {{ _includedir }}"
+
+  # A drop-in file that sudo rejects would lock out every rule of the directory.
+  - name: Assert that sudo is installed and parses the resulting configuration
+    ansible.builtin.command:
+      cmd: visudo --check --strict
+    changed_when: false
