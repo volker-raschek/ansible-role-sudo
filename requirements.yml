@@ -1,0 +1,7 @@
+---
+
+collections:
+# The sudoers module has been added in community.general 4.3.0, its runas
+# parameter in 4.7.0.
+- name: community.general
+  version: ">=4.7.0"
