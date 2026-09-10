@@ -59,9 +59,9 @@
     commands: "{{ item.commands | default('ALL') }}"
   with_items:
   - "{{ sudo_users_sudoers }}"
-  when: item.user is defined and item.user | length > 0 and
-        item.group is not defined and
-        item.runas is not defined
+  when: item.user | default('') | length > 0 and
+        item.group | default('') | length == 0 and
+        item.runas | default('') | length == 0
 
 - name: "Create sudoers drop-in file to execute commands for specific unix users as specific unix user"
   community.general.sudoers:
@@ -73,9 +73,9 @@
     commands: "{{ item.commands | default('ALL') }}"
   with_items:
   - "{{ sudo_users_sudoers }}"
-  when: item.user is defined and item.user | length > 0 and
-        item.group is not defined and
-        item.runas is defined and item.runas | length > 0
+  when: item.user | default('') | length > 0 and
+        item.group | default('') | length == 0 and
+        item.runas | default('') | length > 0
 
 - name: "Create sudoers drop-in file to execute commands for specific unix groups"
   community.general.sudoers:
@@ -86,9 +86,9 @@
     commands: "{{ item.commands | default('ALL') }}"
   with_items:
   - "{{ sudo_users_sudoers }}"
-  when: item.user is not defined and
-        item.group is defined and item.group | length > 0 and
-        item.runas is not defined
+  when: item.user | default('') | length == 0 and
+        item.group | default('') | length > 0 and
+        item.runas | default('') | length == 0
 
 - name: "Create sudoers drop-in file to execute commands for specific unix groups as specifix unix user"
   community.general.sudoers:
@@ -100,6 +100,6 @@
     commands: "{{ item.commands | default('ALL') }}"
   with_items:
   - "{{ sudo_users_sudoers }}"
-  when: item.user is not defined and
-        item.group is defined and item.group | length > 0 and
-        item.runas is defined and item.runas | length > 0
+  when: item.user | default('') | length == 0 and
+        item.group | default('') | length > 0 and
+        item.runas | default('') | length > 0
