@@ -41,21 +41,18 @@
     owner: "root"
     group: "root"
 
-- name: Flush drop-in files of sudoers.d
+- name: Create drop-in directory of sudoers
   ansible.builtin.file:
-    state: "{{ item }}"
+    state: directory
     path: "/etc/sudoers.d"
     owner: "root"
     group: "root"
     mode: "0750"
-  with_items:
-  - absent
-  - directory
 
 - name: "Create sudoers drop-in file to execute commands for specific unix users"
   community.general.sudoers:
     name: "{{ item.filename | default(item.user) }}"
-    state: present
+    state: "{{ item.state | default('present') }}"
     user: "{{ item.user }}"
     nopassword: "{{ item.nopassword | default(false) }}"
     commands: "{{ item.commands | default('ALL') }}"
@@ -68,7 +65,7 @@
 - name: "Create sudoers drop-in file to execute commands for specific unix users as specific unix user"
   community.general.sudoers:
     name: "{{ item.filename | default(item.user) }}"
-    state: present
+    state: "{{ item.state | default('present') }}"
     user: "{{ item.user }}"
     runas: "{{ item.runas }}"
     nopassword: "{{ item.nopassword | default(false) }}"
@@ -82,7 +79,7 @@
 - name: "Create sudoers drop-in file to execute commands for specific unix groups"
   community.general.sudoers:
     name: "{{ item.filename | default(item.group) }}"
-    state: present
+    state: "{{ item.state | default('present') }}"
     group: "{{ item.group }}"
     nopassword: "{{ item.nopassword | default(false) }}"
     commands: "{{ item.commands | default('ALL') }}"
@@ -95,7 +92,7 @@
 - name: "Create sudoers drop-in file to execute commands for specific unix groups as specifix unix user"
   community.general.sudoers:
     name: "{{ item.filename | default(item.group) }}"
-    state: present
+    state: "{{ item.state | default('present') }}"
     group: "{{ item.group }}"
     runas: "{{ item.runas }}"
     nopassword: "{{ item.nopassword | default(false) }}"

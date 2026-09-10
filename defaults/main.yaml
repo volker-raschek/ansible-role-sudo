@@ -7,4 +7,5 @@ sudo_users_sudoers: []
 #   group: "" # Group or User, not booth!
 #   nopassword: true
 #   runas: "" # Optional
+#   state: present # Optional: present or absent. Default to present
 #   user: "markus": # Group or User, not booth!
