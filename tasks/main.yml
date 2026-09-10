@@ -5,11 +5,11 @@
   vars:
     params:
       files:
-      - "{{ ansible_facts['distribution'] }}_{{ ansible_facts['architecture'] }}.yaml"
-      - "{{ ansible_facts['distribution'] }}.yaml"
-      - "{{ ansible_facts['os_family'] }}_{{ ansible_facts['architecture'] }}.yaml"
-      - "{{ ansible_facts['os_family'] }}.yaml"
-      - main.yaml
+      - "{{ ansible_facts['distribution'] }}_{{ ansible_facts['architecture'] }}.yml"
+      - "{{ ansible_facts['distribution'] }}.yml"
+      - "{{ ansible_facts['os_family'] }}_{{ ansible_facts['architecture'] }}.yml"
+      - "{{ ansible_facts['os_family'] }}.yml"
+      - main.yml
       paths:
       - vars
 
@@ -18,9 +18,9 @@
   vars:
     params:
       files:
-      - "{{ ansible_facts['distribution'] }}_verify_vars.yaml"
-      - "{{ ansible_facts['os_family'] }}_verify_vars.yaml"
-      - verify_vars.yaml
+      - "{{ ansible_facts['distribution'] }}_verify_vars.yml"
+      - "{{ ansible_facts['os_family'] }}_verify_vars.yml"
+      - verify_vars.yml
       paths:
       - tasks
 
