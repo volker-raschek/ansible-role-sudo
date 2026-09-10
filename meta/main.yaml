@@ -7,7 +7,7 @@ galaxy_info:
   - sudo
   - sudoers
   license: MIT
-  min_ansible_version: "2.9"
+  min_ansible_version: "2.11"
   namespace: volker-raschek
   platforms:
   - name: ArchLinux
