@@ -34,7 +34,8 @@
   ansible.builtin.lineinfile:
     dest: /etc/sudoers
     state: present
-    regexp: "^(#)+(\\s)*includedir(\\s)*/etc/sudoers.d"
+    # sudo >= 1.9.1 ships the directive as @includedir, older releases as #includedir
+    regexp: "^[#@]+(\\s)*includedir(\\s)*/etc/sudoers\\.d"
     line: "#includedir /etc/sudoers.d"
     validate: 'visudo --check --file %s'
     mode: "0440"
