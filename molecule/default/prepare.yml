@@ -41,8 +41,7 @@
     - molecule-alice
     - molecule-bob
 
-  # The removal path of the role can only be observed on a drop-in file that exists before the role runs.
-  - name: Create the drop-in directory the seeded file lives in
+  - name: Create the drop-in directory for the seeded files
     ansible.builtin.file:
       path: /etc/sudoers.d
       state: directory
@@ -50,10 +49,13 @@
       group: root
       mode: "0750"
 
-  - name: Seed the drop-in file that the converge removes again
+  - name: Seed the obsolete and unmanaged drop-in files
     ansible.builtin.copy:
       content: "molecule-alice ALL=NOPASSWD: /usr/bin/true\n"
-      dest: /etc/sudoers.d/molecule-obsolete
+      dest: '/etc/sudoers.d/{{ item }}'
       owner: root
       group: root
       mode: "0440"
+    loop:
+    - molecule-obsolete
+    - molecule-unmanaged

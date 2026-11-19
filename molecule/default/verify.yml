@@ -26,6 +26,16 @@
       - not _directory.results[1].stat.exists
       fail_msg: "/etc/sudoers.d is not owned by the role or the file molecule-obsolete was not removed"
 
+  - name: Read the unmanaged drop-in file
+    ansible.builtin.slurp:
+      src: /etc/sudoers.d/molecule-unmanaged
+    register: _unmanaged_rule
+
+  - name: Assert that the unmanaged drop-in file was preserved unchanged
+    ansible.builtin.assert:
+      that: >-
+        (_unmanaged_rule.content | b64decode) == 'molecule-alice ALL=NOPASSWD: /usr/bin/true\n'
+
   - name: Stat the drop-in files of the declared rules
     ansible.builtin.stat:
       path: "/etc/sudoers.d/{{ item.key }}"
