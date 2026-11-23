@@ -13,6 +13,8 @@ platforms:
   image: docker.io/library/debian:13
 - name: sudo-fedora
   image: registry.fedoraproject.org/fedora:43
+- name: sudo-ubuntu
+  image: docker.io/library/ubuntu:24.04
 
 provisioner:
   name: ansible

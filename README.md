@@ -2,59 +2,78 @@
 
 ![Ansible Role](https://img.shields.io/ansible/role/d/volker-raschek/sudo)
 
-With following role can be created sudoers files in `/etc/sudoers.d`. For
-example to grant a user special perimssions to execute a program as root.
+Installs sudo and manages individual rules in `/etc/sudoers.d` for users and groups. Unmanaged drop-in files are
+preserved.
 
-## Supported distributions
+## Requirements
 
-- Arch Linux
-- Debian
-- Fedora
-- RHEL
-- Ubuntu 20.04
+Install the required collection before running the role:
 
-## Features
+```bash
+ansible-galaxy collection install -r requirements.yml
+```
 
-- Installing sudo
-- Configuring drop-on files in `/etc/sudoers.d`
+The role requires gathered facts to select distribution-specific package names and elevated privileges to install
+packages and configure sudo. Arch Linux, Debian, Fedora, RHEL and Ubuntu are supported.
+
+## Parameters
+
+| Name | Description | Default |
+| --- | --- | --- |
+| `sudo_users_sudoers` | List of sudoers drop-ins. Each entry must specify exactly one of `user` and `group`. | `[]` |
+
+Each list entry accepts these keys:
+
+| Key          | Description                                                    | Default             |
+|--------------|----------------------------------------------------------------|---------------------|
+| `user`       | User to grant permissions to. Mutually exclusive with `group`. | None                |
+| `group`      | Group to grant permissions to. Mutually exclusive with `user`. | None                |
+| `filename`   | Name of the drop-in file.                                      | User or group name  |
+| `commands`   | Command or list of commands allowed by the rule.               | `ALL`               |
+| `nopassword` | Allow execution without a password.                            | `false`             |
+| `runas`      | User to run commands as.                                       | sudo default (root) |
+| `state`      | `present` creates the rule; `absent` removes its drop-in.      | `present`           |
+
+## Example
+
+```yaml
+- name: Configure sudo
+  hosts: all
+  become: true
+  roles:
+    - role: volker-raschek.sudo
+      sudo_users_sudoers:
+        - user: alice
+          commands:
+            - /usr/bin/systemctl restart nginx
+          nopassword: true
+        - group: operators
+          filename: operators-as-root
+          runas: root
+          commands:
+            - /usr/bin/id
+        - user: former-user
+          state: absent
+```
 
 ## Tests
 
-The role is tested with [Molecule](https://ansible.readthedocs.io/projects/molecule/). The scenario starts one docker
-container per supported distribution family, applies the role, asserts that a second run reports no change and finally
-verifies the created drop-in files, their permissions and content, that a rule declared as `absent` is gone again and
-that `visudo` accepts the resulting configuration.
+The [Molecule](https://ansible.readthedocs.io/projects/molecule/) scenario tests Arch Linux, Debian, Fedora and Ubuntu
+containers. It checks idempotence, user and group rules, custom filenames, removal, preservation of unmanaged files,
+permissions, invalid entries and `visudo` validation.
 
-Molecule ships only its `default` driver, therefore `docker` is required beside molecule itself. The collections are
-declared in `molecule/default/collections.yml` and installed by molecule.
+Install Molecule and the Docker Python SDK, and ensure the Docker daemon is accessible:
 
 ```bash
 pip install molecule docker
-```
-
-The complete sequence creates the containers, tests them and removes them afterwards.
-
-```bash
 molecule test
 ```
 
-While working on the role the containers are better kept alive.
+For interactive testing:
 
 ```bash
-# create the containers and apply the role
 molecule converge
-
-# run the assertions of molecule/default/verify.yml against the running containers
 molecule verify
-
-# open a shell in one of the containers
-molecule login --host sudo-debian
-
-# remove the containers
+molecule login --host sudo-ubuntu
 molecule destroy
 ```
-
-## Configuring
-
-In the default directory are examples how to configure the network stack. Copy the
-defaults into your `host_vars` or `group_vars` and adapt the examples.

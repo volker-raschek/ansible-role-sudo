@@ -93,3 +93,26 @@
     ansible.builtin.command:
       cmd: visudo --check --strict
     changed_when: false
+
+  - name: Verify that invalid sudoers entries are rejected
+    block:
+    - name: Validate invalid sudoers entries
+      ansible.builtin.include_tasks: ../../tasks/verify_vars.yml
+      vars:
+        sudo_users_sudoers:
+        - {}
+        - user: molecule-alice
+          group: molecule-ops
+
+    - name: Fail if invalid entries were accepted
+      ansible.builtin.fail:
+        msg: Invalid sudoers entries were accepted
+
+    rescue:
+    - name: Assert that both invalid entries failed validation
+      ansible.builtin.assert:
+        that:
+        - ansible_failed_result.results is defined
+        - ansible_failed_result.results | length == 2
+        - ansible_failed_result.results | selectattr('failed', 'equalto', true) | list | length == 2
+        - ansible_failed_result.results | selectattr('msg', 'search', "must define either 'user' or 'group'") | list | length == 2

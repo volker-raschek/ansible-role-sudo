@@ -1,11 +1,5 @@
 ---
 
+## @section Sudoers
+## @param sudo_users_sudoers List of sudoers drop-ins. Each entry must specify either `user` or `group`.
 sudo_users_sudoers: []
-# - commands:
-#   - ALL
-#   filename: ""      # Optional: Default to user or group
-#   group: ""         # Group or User, not booth!
-#   nopassword: true  #
-#   runas: ""         # Optional
-#   state: present    # Optional: absent removes this drop-in; defaults to present
-#   user: "markus":   # Group or User, not booth!
